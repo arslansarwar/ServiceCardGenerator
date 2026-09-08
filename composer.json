@@ -1,0 +1,14 @@
+{
+    "name": "atechinnovations/membership-app",
+    "description": "Membership entry and PDF card generation app",
+    "type": "project",
+    "require": {
+        "php": ">=7.3",
+        "tecnickcom/tcpdf": "^6.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "includes/"
+        }
+    }
+}
