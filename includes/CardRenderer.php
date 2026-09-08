@@ -77,10 +77,12 @@ function renderCardFront(TCPDF $pdf, array $member, float $cardWidth, float $car
     $pdf->SetFillColor($accentRgb[0], $accentRgb[1], $accentRgb[2]);
     $pdf->Rect(0, 0, $cardWidth, $headerHeight, 'F');
 
-    // QR code, top-left, encodes the member code for scanning/verification
+    // QR code, top-left — encodes a link to the public verify page so scanning
+    // opens the member's info directly in a browser
     $qrSize = 10;
     $style = ['border' => false, 'padding' => 0, 'fgcolor' => [0, 0, 0], 'bgcolor' => [255, 255, 255]];
-    $pdf->write2DBarcode($member['member_code'], 'QRCODE,M', 1.5, 1, $qrSize, $qrSize, $style, 'N');
+    $verifyUrl = appDirUrl() . '/verify.php?code=' . urlencode($member['member_code']);
+    $pdf->write2DBarcode($verifyUrl, 'QRCODE,M', 1.5, 1, $qrSize, $qrSize, $style, 'N');
 
     // Org logo monogram, top-right
     $pdf->SetFillColor(255, 255, 255);
@@ -235,24 +237,33 @@ function renderCardBack(TCPDF $pdf, array $member, array $familyMembers, array $
         $pdf->Cell($cardWidth, 3, 'MEMBER FACILITIES & DISCOUNTS', 0, 1, 'C');
         $y += 5;
 
-        // Simple text badges (no third-party logos — add your own licensed logo images
-        // via facility['logo_path'] and Image() if you have permission to use them)
+        // Logo image if the admin uploaded one for this facility (and has rights to use it),
+        // otherwise a plain text badge with name + discount.
         $pdf->SetTextColor(31, 36, 48);
         $pdf->SetFont('helvetica', '', 4.5);
         $perRow = 3;
         $colW = ($cardWidth - 4) / $perRow;
         $x = 2;
         $col = 0;
-        foreach (array_slice($facilities, 0, 9) as $fac) {
-            $pdf->SetXY($x, $y);
-            $label = $fac['name'] . ($fac['discount_text'] ? ' (' . $fac['discount_text'] . ')' : '');
-            $pdf->MultiCell($colW - 1, 3, $label, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
+        foreach (array_slice($facilities, 0, 6) as $fac) {
+            $hasLogo = !empty($fac['logo_path']) && file_exists(__DIR__ . '/../' . $fac['logo_path']);
+            if ($hasLogo) {
+                $logoSize = 6;
+                $pdf->Image(__DIR__ . '/../' . $fac['logo_path'], $x + ($colW - $logoSize) / 2, $y, $logoSize, $logoSize, '', '', '', true, 300, '', false, false, 0, '', false, false);
+                $pdf->SetXY($x, $y + $logoSize + 0.5);
+                $label = $fac['discount_text'] ?: $fac['name'];
+                $pdf->MultiCell($colW - 1, 3, $label, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
+            } else {
+                $pdf->SetXY($x, $y);
+                $label = $fac['name'] . ($fac['discount_text'] ? ' (' . $fac['discount_text'] . ')' : '');
+                $pdf->MultiCell($colW - 1, 3, $label, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
+            }
             $col++;
             $x += $colW;
             if ($col >= $perRow) {
                 $col = 0;
                 $x = 2;
-                $y += 6;
+                $y += 9;
             }
         }
 

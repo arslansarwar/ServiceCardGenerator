@@ -28,7 +28,7 @@ $members = $pdo->query(
             <a href="categories.php">Categories</a>
             <a href="instructions.php">Instructions</a>
             <a href="facilities.php">Facilities</a>
-            <a href="../public/index.php">+ New Member</a>
+            <a href="add-member.php">+ New Member</a>
             <a href="logout.php" style="float:right; color:#b91c1c;">Log out</a>
         </div>
         <h1>Recent Members</h1>

@@ -1,9 +1,10 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+requireAdminLogin();
 require_once __DIR__ . '/../includes/Member.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: index.php');
+    header('Location: add-member.php');
     exit;
 }
 
@@ -23,7 +24,7 @@ $errors = validateMemberInput($data);
 if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
     $_SESSION['old'] = $data;
-    header('Location: index.php');
+    header('Location: add-member.php');
     exit;
 }
 
@@ -34,7 +35,7 @@ try {
 } catch (RuntimeException $e) {
     $_SESSION['errors'] = [$e->getMessage()];
     $_SESSION['old'] = $data;
-    header('Location: index.php');
+    header('Location: add-member.php');
     exit;
 }
 
@@ -42,5 +43,5 @@ $familyMembers = $_POST['family'] ?? [];
 
 $memberCode = createMember($pdo, $data, $photoPath, $familyMembers);
 
-header('Location: success.php?code=' . urlencode($memberCode));
+header('Location: ../public/success.php?code=' . urlencode($memberCode));
 exit;

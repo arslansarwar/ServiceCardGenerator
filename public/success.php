@@ -26,6 +26,7 @@ if (!$member) {
         <a class="btn-download" href="card.php?code=<?= urlencode($member['member_code']) ?>">
             Download Membership Card (PDF)
         </a>
+        <p style="margin-top:16px;"><a href="../admin/index.php" style="color:#4f46e5; font-size:0.85rem;">← Back to Dashboard</a></p>
     </div>
 </body>
 </html>
